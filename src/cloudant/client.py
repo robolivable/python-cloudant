@@ -24,7 +24,7 @@ import requests
 from ._2to3 import bytes_, unicode_
 from .database import CloudantDatabase, CouchDatabase
 from .feed import Feed, InfiniteFeed
-from .error import CloudantException, CloudantArgumentError
+from .error import CloudantException, CloudantArgumentError, CloudantClientException
 from ._common_util import (
     USER_AGENT,
     append_response_error_content,
@@ -210,9 +210,7 @@ class CouchDB(dict):
         new_db = self._DATABASE_CLASS(self, dbname)
         if new_db.exists():
             if kwargs.get('throw_on_exists', True):
-                raise CloudantException(
-                    "Database {0} already exists".format(dbname)
-                )
+                raise CloudantClientException(201, dbname)
         new_db.create()
         super(CouchDB, self).__setitem__(dbname, new_db)
         return new_db
