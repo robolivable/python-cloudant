@@ -392,7 +392,9 @@ class ClientTests(UnitTestDbBase):
             self.client['not-a-db'] = 'This is not a database object'
             self.fail('Above statement should raise a CloudantException')
         except CloudantException as err:
-            self.assertEqual(str(err), 'Value must be set to a Database object')
+            self.assertEqual(
+                str(err),
+                'Value must be set to a Database object. Found type: str.')
         finally:
             self.client.disconnect()
 

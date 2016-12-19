@@ -19,5 +19,8 @@ library.
 
 CLIENT_MESSAGES = {
     200: 'A general client exception was raised.',
-    201: 'Database {0} already exists'
+    201: 'Database {0} already exists',
+    202: 'Database {0} does not exist',
+    203: 'Value must be set to a Database object. Found type: {0}.',
+    204: 'You must provide a url or an account. Found: {0}.'
 }
