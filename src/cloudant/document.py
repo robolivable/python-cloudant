@@ -56,7 +56,7 @@ class Document(dict):
     :param str document_id: Optional document id used to identify the document.
     """
 
-    CACHE_EXPIRES_SECONDS = 60
+    CACHE_EXPIRES_SECONDS = 10
 
     def __init__(self, database, document_id=None):
         super(Document, self).__init__()
@@ -120,6 +120,10 @@ class Document(dict):
                 resp.raise_for_status()
 
         return resp.status_code == 200
+
+    def expired(self):
+        return int(time.time()) - self.fetched_at \
+            > Document.CACHE_EXPIRES_SECONDS
 
     def json(self):
         """
