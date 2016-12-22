@@ -86,10 +86,11 @@ class CloudantClientException(CloudantException):
     :param int code: A code value used to identify the client exception.
     :param args: A list of arguments used to format the exception message.
     """
-    def __init__(self, code=None, *args):
+    def __init__(self, code=100, *args):
         try:
             msg = CLIENT[code].format(*args)
         except (KeyError, IndexError):
+            code = 100
             msg = CLIENT[code]
         super(CloudantClientException, self).__init__(msg, code)
 
@@ -97,13 +98,14 @@ class CloudantDatabaseException(CloudantException):
     """
     Provides a way to issue Cloudant library database specific exceptions.
 
-    :param int code: A code value used to identify the client exception.
+    :param int code: A code value used to identify the database exception.
     :param args: A list of arguments used to format the exception message.
     """
-    def __init__(self, code=None, *args):
+    def __init__(self, code=100, *args):
         try:
             msg = DATABASE[code].format(*args)
         except (KeyError, IndexError):
+            code = 100
             msg = DATABASE[code]
         super(CloudantDatabaseException, self).__init__(msg, code)
 
@@ -111,13 +113,14 @@ class CloudantDesignDocumentException(CloudantException):
     """
     Provides a way to issue Cloudant library design document exceptions.
 
-    :param int code: A code value used to identify the client exception.
+    :param int code: A code value used to identify the design doc exception.
     :param args: A list of arguments used to format the exception message.
     """
-    def __init__(self, code=None, *args):
+    def __init__(self, code=100, *args):
         try:
             msg = DESIGN_DOCUMENT[code].format(*args)
         except (KeyError, IndexError):
+            code = 100
             msg = DESIGN_DOCUMENT[code]
         super(CloudantDesignDocumentException, self).__init__(msg, code)
 
@@ -125,13 +128,14 @@ class CloudantDocumentException(CloudantException):
     """
     Provides a way to issue Cloudant library document specific exceptions.
 
-    :param int code: A code value used to identify the client exception.
+    :param int code: A code value used to identify the document exception.
     :param args: A list of arguments used to format the exception message.
     """
-    def __init__(self, code=None, *args):
+    def __init__(self, code=100, *args):
         try:
             msg = DOCUMENT[code].format(*args)
         except (KeyError, IndexError):
+            code = 100
             msg = DOCUMENT[code]
         super(CloudantDocumentException, self).__init__(msg, code)
 
@@ -139,13 +143,14 @@ class CloudantFeedException(CloudantException):
     """
     Provides a way to issue Cloudant library feed specific exceptions.
 
-    :param int code: A code value used to identify the client exception.
+    :param int code: A code value used to identify the feed exception.
     :param args: A list of arguments used to format the exception message.
     """
-    def __init__(self, code=None, *args):
+    def __init__(self, code=100, *args):
         try:
             msg = FEED[code].format(*args)
         except (KeyError, IndexError):
+            code = 100
             msg = FEED[code]
         super(CloudantFeedException, self).__init__(msg, code)
 
@@ -153,13 +158,14 @@ class CloudantIndexException(CloudantException):
     """
     Provides a way to issue Cloudant library index specific exceptions.
 
-    :param int code: A code value used to identify the client exception.
+    :param int code: A code value used to identify the index exception.
     :param args: A list of arguments used to format the exception message.
     """
-    def __init__(self, code=None, *args):
+    def __init__(self, code=100, *args):
         try:
             msg = INDEX[code].format(*args)
         except (KeyError, IndexError):
+            code = 100
             msg = INDEX[code]
         super(CloudantIndexException, self).__init__(msg, code)
 
@@ -167,12 +173,13 @@ class CloudantReplicatorException(CloudantException):
     """
     Provides a way to issue Cloudant library replicator specific exceptions.
 
-    :param int code: A code value used to identify the client exception.
+    :param int code: A code value used to identify the replicator exception.
     :param args: A list of arguments used to format the exception message.
     """
-    def __init__(self, code=None, *args):
+    def __init__(self, code=100, *args):
         try:
             msg = REPLICATOR[code].format(*args)
         except (KeyError, IndexError):
+            code = 100
             msg = REPLICATOR[code]
         super(CloudantReplicatorException, self).__init__(msg, code)

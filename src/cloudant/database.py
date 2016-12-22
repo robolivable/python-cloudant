@@ -1082,7 +1082,7 @@ class CloudantDatabase(CouchDatabase):
                     **data.get('def', {})
                 ))
             else:
-                raise CloudantDatabaseException(100, data.get('type'))
+                raise CloudantDatabaseException(101, data.get('type'))
         return indexes
 
     def create_query_index(

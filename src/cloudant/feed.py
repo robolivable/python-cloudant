@@ -252,7 +252,7 @@ class InfiniteFeed(Feed):
         """
         while True:
             if self._source == 'CouchDB':
-                raise CloudantFeedException(100)
+                raise CloudantFeedException(101)
             if self._last_seq:
                 self._options.update({'since': self._last_seq})
                 self._resp = None

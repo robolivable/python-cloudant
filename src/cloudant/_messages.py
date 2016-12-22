@@ -17,44 +17,51 @@ Module that contains exception messages for the Cloudant Python client
 library.
 """
 CLIENT = {
-    100: 'Value must be set to a Database object. Found type: {0}.',
-    101: 'You must provide a url or an account.',
+    100: 'A general Cloudant client exception was raised.',
+    101: 'Value must be set to a Database object. Found type: {0}.',
+    102: 'You must provide a url or an account.',
     404: 'Database {0} does not exist.',
     412: 'Database {0} already exists.'
 }
 DATABASE = {
-    100: 'Unexpected index type. Found: {0}.',
+    100: 'A general Cloudant database exception was raised.',
+    101: 'Unexpected index type. Found: {0}.',
     400: 'Invalid database name during creation. Found: {0}',
     401: 'Unauthorized to create database {0}.',
     404: 'Unable to acquire {0} database. Verify that the client is valid and try again.',
     409: 'Document with id {0} already exists.'
 }
 DESIGN_DOCUMENT = {
-    100: 'Cannot add a MapReduce view to a design document for query indexes.',
-    101: 'Cannot update a query index view using this method.',
-    102: 'Cannot delete a query index view using this method.',
-    103: 'View {0} must be of type View.',
-    104: 'View {0} must be of type QueryIndexView.',
-    105: 'Function for search index {0} must be of type string.',
-    106: 'Definition for query text index {0} must be of type dict.'
+    100: 'A general Cloudant design document exception was raised.',
+    101: 'Cannot add a MapReduce view to a design document for query indexes.',
+    102: 'Cannot update a query index view using this method.',
+    103: 'Cannot delete a query index view using this method.',
+    104: 'View {0} must be of type View.',
+    105: 'View {0} must be of type QueryIndexView.',
+    106: 'Function for search index {0} must be of type string.',
+    107: 'Definition for query text index {0} must be of type dict.'
 }
 DOCUMENT = {
-    100: 'A document id is required to fetch document contents. '
+    100: 'A general Cloudant document exception was raised.',
+    101: 'A document id is required to fetch document contents. '
          'Add an _id key and value to the document and re-try.',
-    101: 'The field {0} is not a list.',
-    102: 'Attempting to delete a doc with no _rev. Try running .fetch and re-try.'
+    102: 'The field {0} is not a list.',
+    103: 'Attempting to delete a doc with no _rev. Try running .fetch and re-try.'
 }
 FEED = {
-    100: 'Infinite _db_updates feed not supported for CouchDB.'
+    100: 'A general Cloudant feed exception was raised.',
+    101: 'Infinite _db_updates feed not supported for CouchDB.'
 }
 INDEX = {
-    100: 'Creating the \"special\" index is not allowed.',
-    101: 'Deleting the \"special\" index is not allowed.'
+    100: 'A general Cloudant index exception was raised.',
+    101: 'Creating the \"special\" index is not allowed.',
+    102: 'Deleting the \"special\" index is not allowed.'
 }
 REPLICATOR = {
-    100: 'You must specify either a source_db Database object or a manually composed'
+    100: 'A general Cloudant replicator exception was raised.',
+    101: 'You must specify either a source_db Database object or a manually composed'
          ' \'source\' string/dict.',
-    101: 'You must specify either a target_db Database object or a manually composed'
+    102: 'You must specify either a target_db Database object or a manually composed'
          ' \'target\' string/dict.',
     404: 'Replication with id {0} not found.'
 }

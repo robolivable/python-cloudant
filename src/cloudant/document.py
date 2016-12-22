@@ -162,7 +162,7 @@ class Document(dict):
         the locally cached Document object.
         """
         if self.document_url is None:
-            raise CloudantDocumentException(100)
+            raise CloudantDocumentException(101)
         resp = self.r_session.get(self.document_url)
         resp.raise_for_status()
         self.clear()
@@ -208,7 +208,7 @@ class Document(dict):
         if doc.get(field) is None:
             doc[field] = []
         if not isinstance(doc[field], list):
-            raise CloudantDocumentException(101, field)
+            raise CloudantDocumentException(102, field)
         if value is not None:
             doc[field].append(value)
 
@@ -223,7 +223,7 @@ class Document(dict):
         :param value: Value to remove from the field list.
         """
         if not isinstance(doc[field], list):
-            raise CloudantDocumentException(101, field)
+            raise CloudantDocumentException(102, field)
         doc[field].remove(value)
 
     @staticmethod
@@ -308,7 +308,7 @@ class Document(dict):
         object.
         """
         if not self.get("_rev"):
-            raise CloudantDocumentException(102)
+            raise CloudantDocumentException(103)
 
         del_resp = self.r_session.delete(
             self.document_url,

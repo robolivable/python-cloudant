@@ -252,11 +252,11 @@ class SpecialIndex(Index):
         A "special" index cannot be created.  This method is disabled for a
         SpecialIndex object.
         """
-        raise CloudantIndexException(100)
+        raise CloudantIndexException(101)
 
     def delete(self):
         """
         A "special" index cannot be deleted.  This method is disabled for a
         SpecialIndex object.
         """
-        raise CloudantIndexException(101)
+        raise CloudantIndexException(102)

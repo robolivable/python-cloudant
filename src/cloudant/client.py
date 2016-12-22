@@ -375,7 +375,7 @@ class CouchDB(dict):
             create the database remotely or not.  Defaults to False.
         """
         if not isinstance(value, self._DATABASE_CLASS):
-            raise CloudantClientException(100, type(value).__name__)
+            raise CloudantClientException(101, type(value).__name__)
         if remote and not value.exists():
             value.create()
         super(CouchDB, self).__setitem__(key, value)
@@ -422,7 +422,7 @@ class Cloudant(CouchDB):
                 self._client_user_header['X-Cloudant-User'] = x_cloudant_user
 
         if self.server_url is None:
-            raise CloudantClientException(101)
+            raise CloudantClientException(102)
 
         if kwargs.get('connect', False):
             self.connect()

@@ -76,7 +76,7 @@ class Replicator(object):
 
         if not data.get('source'):
             if source_db is None:
-                raise CloudantReplicatorException(100)
+                raise CloudantReplicatorException(101)
             data['source'] = {'url': source_db.database_url}
             if not source_db.admin_party:
                 data['source'].update(
@@ -85,7 +85,7 @@ class Replicator(object):
 
         if not data.get('target'):
             if target_db is None:
-                raise CloudantReplicatorException(101)
+                raise CloudantReplicatorException(102)
             data['target'] = {'url': target_db.database_url}
             if not target_db.admin_party:
                 data['target'].update(
