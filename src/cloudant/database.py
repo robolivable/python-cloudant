@@ -18,6 +18,7 @@ API module that maps to a Cloudant or CouchDB database instance.
 import json
 import contextlib
 import posixpath
+import time
 
 from requests.exceptions import HTTPError
 
@@ -593,17 +594,19 @@ class CouchDatabase(dict):
             specified document id (key)
         """
         if key in list(self.keys()):
-            return super(CouchDatabase, self).__getitem__(key)
+            doc = super(CouchDatabase, self).__getitem__(key)
+            if (int(time.time()) - doc.fetched_at) \
+               < Document.CACHE_EXPIRES_SECONDS:
+                return doc
         if key.startswith('_design/'):
             doc = DesignDocument(self, key)
         else:
             doc = Document(self, key)
-        if doc.exists():
-            doc.fetch()
-            super(CouchDatabase, self).__setitem__(key, doc)
-            return doc
-        else:
+        if not doc.exists():
             raise KeyError(key)
+        doc.fetch()
+        super(CouchDatabase, self).__setitem__(key, doc)
+        return doc
 
     def __iter__(self, remote=True):
         """

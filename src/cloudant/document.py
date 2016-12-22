@@ -18,6 +18,7 @@ API module/class for interacting with a document in a database.
 import json
 import posixpath
 import requests
+import time
 from requests.exceptions import HTTPError
 
 from ._2to3 import url_quote, url_quote_plus
@@ -54,6 +55,9 @@ class Document(dict):
         either a ``CouchDatabase`` or ``CloudantDatabase`` instance.
     :param str document_id: Optional document id used to identify the document.
     """
+
+    CACHE_EXPIRES_SECONDS = 60
+
     def __init__(self, database, document_id=None):
         super(Document, self).__init__()
         self._client = database.client
@@ -64,6 +68,7 @@ class Document(dict):
         if self._document_id is not None:
             self['_id'] = self._document_id
         self.encoder = self._client.encoder
+        self.fetched_at = 0
 
     @property
     def r_session(self):
@@ -169,6 +174,7 @@ class Document(dict):
         resp.raise_for_status()
         self.clear()
         self.update(resp.json())
+        self.fetched_at = int(time.time())
 
     def save(self):
         """
