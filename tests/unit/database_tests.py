@@ -1413,32 +1413,14 @@ class CloudantDatabaseTests(UnitTestDbBase):
         )
         self.assertEqual(len(resp['rows']), 5)
         self.assertTrue(resp['bookmark'])
-        resp.pop('bookmark')
+
         for row in resp['rows']:
             self.assertTrue(row['doc']['_rev'].startswith('1-'))
-            row['doc'].pop('_rev')
+            self.assertEqual('julia', row['fields']['name'])
+
         self.assertEqual(
-            resp,
-            {'rows': [{'fields': {'name': 'julia'}, 'doc': {'_id': 'julia000',
-                                                            'age': 0,
-                                                            'name': 'julia'},
-                       'id': 'julia000', 'order': ['julia000', 0]},
-                      {'fields': {'name': 'julia'}, 'doc': {'_id': 'julia001',
-                                                            'age': 1,
-                                                            'name': 'julia'},
-                       'id': 'julia001', 'order': ['julia001', 0]},
-                      {'fields': {'name': 'julia'},'doc': {'_id': 'julia002',
-                                                           'age': 2,
-                                                           'name': 'julia'},
-                       'id': 'julia002', 'order': ['julia002', 0]},
-                      {'fields': {'name': 'julia'}, 'doc': {'_id': 'julia003',
-                                                            'age': 3,
-                                                            'name': 'julia'},
-                       'id': 'julia003', 'order': ['julia003', 0]},
-                      {'fields': {'name': 'julia'},
-                       'doc': {'_id': 'julia004', 'age': 4,
-                               'name': 'julia'},
-                       'id': 'julia004', 'order': ['julia004', 1]}], 'total_rows': 100}
+            ['julia000', 'julia001', 'julia002', 'julia003', 'julia004'],
+            [row['id'] for row in resp['rows']]
         )
 
     def test_get_search_result_executes_search_q(self):
@@ -1454,14 +1436,13 @@ class CloudantDatabaseTests(UnitTestDbBase):
             sort='_id<string>',
             limit=1
         )
-        self.assertEqual(len(resp['rows']), 1)
+
         self.assertTrue(resp['bookmark'])
-        resp.pop('bookmark')
-        self.assertEqual(
-            resp,
-            {'rows': [{'fields': {'name': 'julia'}, 'id': 'julia000',
-                       'order': ['julia000', 0]}], 'total_rows': 100}
-        )
+        self.assertEqual(100, resp['total_rows'])
+        self.assertEqual(len(resp['rows']), 1)
+
+        self.assertEqual('julia000', resp['rows'][0]['id'])
+        self.assertEqual('julia', resp['rows'][0]['fields']['name'])
 
     def test_get_search_result_executes_search_query_with_group_option(self):
         """
@@ -1479,25 +1460,17 @@ class CloudantDatabaseTests(UnitTestDbBase):
         )
         # for group parameter options, 'rows' results are within 'groups' key
         self.assertEqual(len(resp['groups']), 5)
+
+        results = []
+        for group in resp['groups']:
+            results.append(group['by'])
+            self.assertEqual(1, group['total_rows'])
+            self.assertEqual(1, len(group['rows']))
+            self.assertEqual('julia', group['rows'][0]['fields']['name'])
+
         self.assertEqual(
-            resp,
-            {'total_rows': 100, 'groups': [
-                {'rows': [{'fields': {'name': 'julia'}, 'id': 'julia000',
-                           'order': [1.0, 0]}], 'total_rows': 1,
-                 'by': 'julia000'},
-                {'rows': [{'fields': {'name': 'julia'}, 'id': 'julia001',
-                           'order': [1.0, 0]}], 'total_rows': 1,
-                 'by': 'julia001'},
-                {'rows': [{'fields': {'name': 'julia'}, 'id': 'julia002',
-                           'order': [1.0, 0]}], 'total_rows': 1,
-                 'by': 'julia002'},
-                {'rows': [{'fields': {'name': 'julia'}, 'id': 'julia003',
-                           'order': [1.0, 0]}], 'total_rows': 1,
-                 'by': 'julia003'},
-                {'rows': [{'fields': {'name': 'julia'}, 'id': 'julia004',
-                           'order': [1.0, 1]}], 'total_rows': 1,
-                 'by': 'julia004'}
-            ]}
+            ['julia000', 'julia001', 'julia002', 'julia003', 'julia004'],
+            results
         )
 
 if __name__ == '__main__':
