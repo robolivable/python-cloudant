@@ -18,7 +18,7 @@ API module/class for handling database replications
 
 import uuid
 
-from .error import CloudantReplicatorException, CloudantDatabaseException
+from .error import CloudantReplicatorException, CloudantClientException
 from .document import Document
 
 class Replicator(object):
@@ -37,7 +37,7 @@ class Replicator(object):
         try:
             self.database = client[repl_db]
         except Exception:
-            raise CloudantDatabaseException(404, repl_db)
+            raise CloudantClientException(404, repl_db)
 
     def create_replication(self, source_db=None, target_db=None,
                            repl_id=None, **kwargs):

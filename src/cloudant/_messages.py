@@ -20,7 +20,7 @@ CLIENT = {
     100: 'A general Cloudant client exception was raised.',
     101: 'Value must be set to a Database object. Found type: {0}.',
     102: 'You must provide a url or an account.',
-    404: 'Database {0} does not exist.',
+    404: 'Database {0} does not exist. Verify that the client is valid and try again.',
     412: 'Database {0} already exists.'
 }
 DATABASE = {
@@ -28,7 +28,6 @@ DATABASE = {
     101: 'Unexpected index type. Found: {0}.',
     400: 'Invalid database name during creation. Found: {0}',
     401: 'Unauthorized to create database {0}.',
-    404: 'Unable to acquire {0} database. Verify that the client is valid and try again.',
     409: 'Document with id {0} already exists.'
 }
 DESIGN_DOCUMENT = {
