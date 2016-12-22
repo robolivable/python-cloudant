@@ -73,8 +73,7 @@ class ResultException(CloudantException):
     def __init__(self, code=100, *args):
         try:
             msg = RESULT[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             code = 100
             msg = RESULT[code]
         super(ResultException, self).__init__(msg, code)
@@ -90,8 +89,7 @@ class CloudantClientException(CloudantException):
     def __init__(self, code=None, *args):
         try:
             msg = CLIENT[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             msg = CLIENT[code]
         super(CloudantClientException, self).__init__(msg, code)
 
@@ -105,8 +103,7 @@ class CloudantDatabaseException(CloudantException):
     def __init__(self, code=None, *args):
         try:
             msg = DATABASE[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             msg = DATABASE[code]
         super(CloudantDatabaseException, self).__init__(msg, code)
 
@@ -120,8 +117,7 @@ class CloudantDesignDocumentException(CloudantException):
     def __init__(self, code=None, *args):
         try:
             msg = DESIGN_DOCUMENT[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             msg = DESIGN_DOCUMENT[code]
         super(CloudantDesignDocumentException, self).__init__(msg, code)
 
@@ -135,8 +131,7 @@ class CloudantDocumentException(CloudantException):
     def __init__(self, code=None, *args):
         try:
             msg = DOCUMENT[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             msg = DOCUMENT[code]
         super(CloudantDocumentException, self).__init__(msg, code)
 
@@ -150,8 +145,7 @@ class CloudantFeedException(CloudantException):
     def __init__(self, code=None, *args):
         try:
             msg = FEED[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             msg = FEED[code]
         super(CloudantFeedException, self).__init__(msg, code)
 
@@ -165,8 +159,7 @@ class CloudantIndexException(CloudantException):
     def __init__(self, code=None, *args):
         try:
             msg = INDEX[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             msg = INDEX[code]
         super(CloudantIndexException, self).__init__(msg, code)
 
@@ -180,7 +173,6 @@ class CloudantReplicatorException(CloudantException):
     def __init__(self, code=None, *args):
         try:
             msg = REPLICATOR[code].format(*args)
-        # pylint: disable=broad-except
-        except Exception:
+        except (KeyError, IndexError):
             msg = REPLICATOR[code]
         super(CloudantReplicatorException, self).__init__(msg, code)
