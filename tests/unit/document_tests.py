@@ -233,7 +233,7 @@ class DocumentTests(UnitTestDbBase):
         except CloudantException as err:
             self.assertEqual(
                 str(err),
-                'A document id is required to fetch document contents.  '
+                'A document id is required to fetch document contents. '
                 'Add an _id key and value to the document and re-try.'
             )
 
@@ -459,7 +459,7 @@ class DocumentTests(UnitTestDbBase):
             self.assertEqual(
                 str(err), 
                 'Attempting to delete a doc with no _rev. '
-                'Try running .fetch first!'
+                'Try running .fetch and re-try.'
             )
 
     def test_delete_document_success(self):

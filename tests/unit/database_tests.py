@@ -220,7 +220,7 @@ class DatabaseTests(UnitTestDbBase):
         except CloudantException as err:
             self.assertEqual(
                 str(err),
-                'Error - Document with id julia06 already exists.'
+                'Document with id julia06 already exists.'
                 )
 
     def test_create_document_without_id(self):

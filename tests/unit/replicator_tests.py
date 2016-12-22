@@ -105,7 +105,7 @@ class ReplicatorTests(UnitTestDbBase):
         except CloudantException as err:
             self.assertEqual(
                 str(err),
-                'Unable to acquire _replicator database.  '
+                'Unable to acquire _replicator database. '
                 'Verify that the client is valid and try again.'
             )
         finally:
@@ -255,7 +255,7 @@ class ReplicatorTests(UnitTestDbBase):
         except CloudantException as err:
             self.assertEqual(
                 str(err),
-                'Replication {} not found'.format(repl_id)
+                'Replication with id {} not found.'.format(repl_id)
             )
             self.assertIsNone(repl_state)
 
@@ -291,7 +291,7 @@ class ReplicatorTests(UnitTestDbBase):
         except CloudantException as err:
             self.assertEqual(
                 str(err),
-                'Could not find replication with id {}'.format(repl_id)
+                'Replication with id {} not found.'.format(repl_id)
             )
 
     def test_follow_replication(self):

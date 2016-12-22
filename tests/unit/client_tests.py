@@ -30,7 +30,7 @@ import datetime
 
 from cloudant import cloudant, couchdb, couchdb_admin_party
 from cloudant.client import Cloudant, CouchDB
-from cloudant.error import CloudantException, CloudantArgumentError
+from cloudant.error import CloudantException, CloudantArgumentError, CloudantClientException
 from cloudant.feed import Feed, InfiniteFeed
 from cloudant._common_util import InfiniteSession
 
@@ -233,19 +233,14 @@ class ClientTests(UnitTestDbBase):
         Test creation of already existing database
         """
         dbname = self.dbname()
-        try:
-            self.client.connect()
-            self.client.create_database(dbname)
+        self.client.connect()
+        self.client.create_database(dbname)
+        with self.assertRaises(CloudantClientException) as cm:
             self.client.create_database(dbname, throw_on_exists=True)
-            self.fail('Above statement should raise a CloudantException')
-        except CloudantException as err:
-            self.assertEqual(
-                str(err),
-                'Database {0} already exists'.format(dbname)
-                )
-        finally:
-            self.client.delete_database(dbname)
-            self.client.disconnect()
+        self.assertEqual(cm.exception.status_code, 412)
+
+        self.client.delete_database(dbname)
+        self.client.disconnect()
 
     def test_delete_non_existing_database(self):
         """
@@ -256,7 +251,7 @@ class ClientTests(UnitTestDbBase):
             self.client.delete_database('no_such_db')
             self.fail('Above statement should raise a CloudantException')
         except CloudantException as err:
-            self.assertEqual(str(err), 'Database no_such_db does not exist')
+            self.assertEqual(str(err), 'Database no_such_db does not exist.')
         finally:
             self.client.disconnect()
 
@@ -397,7 +392,9 @@ class ClientTests(UnitTestDbBase):
             self.client['not-a-db'] = 'This is not a database object'
             self.fail('Above statement should raise a CloudantException')
         except CloudantException as err:
-            self.assertEqual(str(err), 'Value must be set to a Database object')
+            self.assertEqual(
+                str(err),
+                'Value must be set to a Database object. Found type: str.')
         finally:
             self.client.disconnect()
 
