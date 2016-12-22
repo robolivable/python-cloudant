@@ -16,6 +16,16 @@
 Module that contains common exception classes for the Cloudant Python client
 library.
 """
+from cloudant._messages import (
+    CLIENT,
+    DATABASE,
+    DESIGN_DOCUMENT,
+    DOCUMENT,
+    FEED,
+    INDEX,
+    REPLICATOR,
+    RESULT
+)
 
 class CloudantException(Exception):
     """
@@ -61,18 +71,116 @@ class ResultException(CloudantException):
     """
 
     def __init__(self, code=100, *args):
-        messages = {
-            100:'A general result exception was raised.',
-            101:'Failed to interpret the argument {0} as a valid key value or as a valid slice.',
-            102:'Cannot use {0} when performing key access or key slicing.  Found {1}.',
-            103:'Cannot use {0} for iteration.  Found {1}.',
-            104:'Invalid page_size: {0}'
-        }
-
         try:
-            msg = messages[code].format(*args)
+            msg = RESULT[code].format(*args)
         # pylint: disable=broad-except
         except Exception:
             code = 100
-            msg = messages[code]
+            msg = RESULT[code]
         super(ResultException, self).__init__(msg, code)
+
+
+class CloudantClientException(CloudantException):
+    """
+    Provides a way to issue Cloudant library client specific exceptions.
+
+    :param int code: A code value used to identify the client exception.
+    :param args: A list of arguments used to format the exception message.
+    """
+    def __init__(self, code=None, *args):
+        try:
+            msg = CLIENT[code].format(*args)
+        # pylint: disable=broad-except
+        except Exception:
+            msg = CLIENT[code]
+        super(CloudantClientException, self).__init__(msg, code)
+
+class CloudantDatabaseException(CloudantException):
+    """
+    Provides a way to issue Cloudant library database specific exceptions.
+
+    :param int code: A code value used to identify the client exception.
+    :param args: A list of arguments used to format the exception message.
+    """
+    def __init__(self, code=None, *args):
+        try:
+            msg = DATABASE[code].format(*args)
+        # pylint: disable=broad-except
+        except Exception:
+            msg = DATABASE[code]
+        super(CloudantDatabaseException, self).__init__(msg, code)
+
+class CloudantDesignDocumentException(CloudantException):
+    """
+    Provides a way to issue Cloudant library design document exceptions.
+
+    :param int code: A code value used to identify the client exception.
+    :param args: A list of arguments used to format the exception message.
+    """
+    def __init__(self, code=None, *args):
+        try:
+            msg = DESIGN_DOCUMENT[code].format(*args)
+        # pylint: disable=broad-except
+        except Exception:
+            msg = DESIGN_DOCUMENT[code]
+        super(CloudantDesignDocumentException, self).__init__(msg, code)
+
+class CloudantDocumentException(CloudantException):
+    """
+    Provides a way to issue Cloudant library document specific exceptions.
+
+    :param int code: A code value used to identify the client exception.
+    :param args: A list of arguments used to format the exception message.
+    """
+    def __init__(self, code=None, *args):
+        try:
+            msg = DOCUMENT[code].format(*args)
+        # pylint: disable=broad-except
+        except Exception:
+            msg = DOCUMENT[code]
+        super(CloudantDocumentException, self).__init__(msg, code)
+
+class CloudantFeedException(CloudantException):
+    """
+    Provides a way to issue Cloudant library feed specific exceptions.
+
+    :param int code: A code value used to identify the client exception.
+    :param args: A list of arguments used to format the exception message.
+    """
+    def __init__(self, code=None, *args):
+        try:
+            msg = FEED[code].format(*args)
+        # pylint: disable=broad-except
+        except Exception:
+            msg = FEED[code]
+        super(CloudantFeedException, self).__init__(msg, code)
+
+class CloudantIndexException(CloudantException):
+    """
+    Provides a way to issue Cloudant library index specific exceptions.
+
+    :param int code: A code value used to identify the client exception.
+    :param args: A list of arguments used to format the exception message.
+    """
+    def __init__(self, code=None, *args):
+        try:
+            msg = INDEX[code].format(*args)
+        # pylint: disable=broad-except
+        except Exception:
+            msg = INDEX[code]
+        super(CloudantIndexException, self).__init__(msg, code)
+
+class CloudantReplicatorException(CloudantException):
+    """
+    Provides a way to issue Cloudant library replicator specific exceptions.
+
+    :param int code: A code value used to identify the client exception.
+    :param args: A list of arguments used to format the exception message.
+    """
+    def __init__(self, code=None, *args):
+        try:
+            msg = REPLICATOR[code].format(*args)
+        # pylint: disable=broad-except
+        except Exception:
+            msg = REPLICATOR[code]
+        super(CloudantReplicatorException, self).__init__(msg, code)
