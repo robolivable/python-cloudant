@@ -23,7 +23,7 @@ from collections import Sequence
 import json
 from requests import Session
 
-from ._2to3 import STRTYPE, NONETYPE, UNITYPE, iteritems_, url_parse
+from ._2to3 import LONGTYPE, STRTYPE, NONETYPE, UNITYPE, iteritems_, url_parse
 from .error import CloudantArgumentError, CloudantException
 
 # Library Constants
@@ -50,19 +50,19 @@ SPECIAL_INDEX_TYPE = 'special'
 
 RESULT_ARG_TYPES = {
     'descending': (bool,),
-    'endkey': (int, STRTYPE, Sequence,),
+    'endkey': (int, LONGTYPE, STRTYPE, Sequence,),
     'endkey_docid': (STRTYPE,),
     'group': (bool,),
-    'group_level': (int, NONETYPE,),
+    'group_level': (int, LONGTYPE, NONETYPE,),
     'include_docs': (bool,),
     'inclusive_end': (bool,),
-    'key': (int, STRTYPE, Sequence,),
+    'key': (int, LONGTYPE, STRTYPE, Sequence,),
     'keys': (list,),
-    'limit': (int, NONETYPE,),
+    'limit': (int, LONGTYPE, NONETYPE,),
     'reduce': (bool,),
-    'skip': (int, NONETYPE,),
+    'skip': (int, LONGTYPE, NONETYPE,),
     'stale': (STRTYPE,),
-    'startkey': (int, STRTYPE, Sequence,),
+    'startkey': (int, LONGTYPE, STRTYPE, Sequence,),
     'startkey_docid': (STRTYPE,),
 }
 
@@ -75,6 +75,7 @@ TYPE_CONVERTERS = {
     list: lambda x: json.dumps(x),
     tuple: lambda x: json.dumps(list(x)),
     int: lambda x: x,
+    LONGTYPE: lambda x: x,
     bool: lambda x: 'true' if x else 'false',
     NONETYPE: lambda x: x
 }
@@ -82,16 +83,16 @@ TYPE_CONVERTERS = {
 _COUCH_DB_UPDATES_ARG_TYPES = {
     'feed': (STRTYPE,),
     'heartbeat': (bool,),
-    'timeout': (int, NONETYPE,),
+    'timeout': (int, LONGTYPE, NONETYPE,),
 }
 
 _DB_UPDATES_ARG_TYPES = {
     'descending': (bool,),
-    'limit': (int, NONETYPE,),
-    'since': (int, STRTYPE,),
+    'limit': (int, LONGTYPE, NONETYPE,),
+    'since': (int, LONGTYPE, STRTYPE,),
 }
 _DB_UPDATES_ARG_TYPES.update(_COUCH_DB_UPDATES_ARG_TYPES)
-_DB_UPDATES_ARG_TYPES['heartbeat'] = (int, NONETYPE,)
+_DB_UPDATES_ARG_TYPES['heartbeat'] = (int, LONGTYPE, NONETYPE,)
 
 _CHANGES_ARG_TYPES = {
     'conflicts': (bool,),
@@ -104,11 +105,11 @@ _CHANGES_ARG_TYPES.update(_DB_UPDATES_ARG_TYPES)
 
 QUERY_ARG_TYPES = {
     'selector': dict,
-    'limit': (int, NONETYPE),
-    'skip': (int, NONETYPE),
+    'limit': (int, LONGTYPE, NONETYPE),
+    'skip': (int, LONGTYPE, NONETYPE),
     'sort': list,
     'fields': list,
-    'r': (int, NONETYPE),
+    'r': (int, LONGTYPE, NONETYPE),
     'bookmark': STRTYPE,
     'use_index': STRTYPE
 }
@@ -124,16 +125,16 @@ SEARCH_INDEX_ARGS = {
     'group_sort': (STRTYPE, list),
     'include_docs': bool,
     'limit': (int, NONETYPE),
-    'query': (STRTYPE, int),
-    'q': (STRTYPE, int),
+    'query': (STRTYPE, int, LONGTYPE),
+    'q': (STRTYPE, int, LONGTYPE),
     'ranges': dict,
     'sort': (STRTYPE, list),
     'stale': STRTYPE,
     'highlight_fields': list,
     'highlight_pre_tag': STRTYPE,
     'highlight_post_tag': STRTYPE,
-    'highlight_number': (int, NONETYPE),
-    'highlight_size': (int, NONETYPE),
+    'highlight_number': (int, LONGTYPE, NONETYPE),
+    'highlight_size': (int, LONGTYPE, NONETYPE),
     'include_fields': list
 }
 
@@ -174,33 +175,21 @@ def py_to_couch_validate(key, val):
     Validates the individual parameter key and value.
     """
     if key not in RESULT_ARG_TYPES:
-        msg = 'Invalid argument {0}'.format(key)
-        raise CloudantArgumentError(msg)
+        raise CloudantArgumentError(116, key)
     # pylint: disable=unidiomatic-typecheck
     # Validate argument values and ensure that a boolean is not passed in
     # if an integer is expected
     if (not isinstance(val, RESULT_ARG_TYPES[key]) or
             (type(val) is bool and int in RESULT_ARG_TYPES[key])):
-        msg = 'Argument {0} not instance of expected type: {1}'.format(
-            key,
-            RESULT_ARG_TYPES[key]
-        )
-        raise CloudantArgumentError(msg)
+        raise CloudantArgumentError(117, key, RESULT_ARG_TYPES[key])
     if key == 'keys':
         for key_list_val in val:
             if (not isinstance(key_list_val, RESULT_ARG_TYPES['key']) or
                     type(key_list_val) is bool):
-                msg = 'Key list element not of expected type: {0}'.format(
-                    RESULT_ARG_TYPES['key']
-                )
-                raise CloudantArgumentError(msg)
+                raise CloudantArgumentError(134, RESULT_ARG_TYPES['key'])
     if key == 'stale':
         if val not in ('ok', 'update_after'):
-            msg = (
-                'Invalid value for stale option {0} '
-                'must be ok or update_after'
-            ).format(val)
-            raise CloudantArgumentError(msg)
+            raise CloudantArgumentError(135, val)
 
 def _py_to_couch_translate(key, val):
     """
@@ -216,8 +205,7 @@ def _py_to_couch_translate(key, val):
             arg_converter = TYPE_CONVERTERS.get(type(val))
             return {key: arg_converter(val)}
     except Exception as ex:
-        msg = 'Error converting argument {0}: {1}'.format(key, ex)
-        raise CloudantArgumentError(msg)
+        raise CloudantArgumentError(136, key, ex)
 
 def type_or_none(typerefs, value):
     """

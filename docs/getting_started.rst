@@ -23,6 +23,10 @@ then disconnecting from the server.
 Later in the `Context managers`_ section we will see how to 
 simplify this process through the use of the Python *with* statement.
 
+Note: If you require retrying requests after an HTTP 429 error, the
+``Replay429Adapter`` can be added when constructing a ``Cloudant``
+client and configured with an initial back off and retry count.
+
 Connecting with a client
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -34,12 +38,13 @@ Connecting with a client
 
     # Use Cloudant to create a Cloudant client using account
     from cloudant.client import Cloudant
-    client = Cloudant(USERNAME, PASSWORD, account=ACCOUNT_NAME)
+    client = Cloudant(USERNAME, PASSWORD, account=ACCOUNT_NAME, connect=True)
     # or using url
     # client = Cloudant(USERNAME, PASSWORD, url='https://acct.cloudant.com')
-    
-    # Connect to the server
-    client.connect()
+
+    # or with a 429 replay adapter that includes configured retries and initial backoff
+    # client = Cloudant(USERNAME, PASSWORD, account=ACCOUNT_NAME,
+    #                   adapter=Replay429Adapter(retries=10, initialBackoff=0.01))
 
     # Perform client tasks...
     session = client.session()
@@ -307,7 +312,7 @@ Cloudant/CouchDB server.  This example assumes that either a ``Cloudant`` or a
 .. code-block:: python
 
     # Define the end point and parameters
-    end_point = '{0}/{1}'.format(client.cloudant_url, 'my_database/_all_docs')
+    end_point = '{0}/{1}'.format(client.server_url, 'my_database/_all_docs')
     params = {'include_docs': 'true'}
 
     # Issue the request
