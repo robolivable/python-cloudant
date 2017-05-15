@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2015, 2016 IBM. All rights reserved.
+# Copyright (c) 2015, 2016, 2017 IBM Corp. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -201,9 +201,8 @@ def _py_to_couch_translate(key, val):
             return {key: val}
         elif val is None:
             return {key: None}
-        else:
-            arg_converter = TYPE_CONVERTERS.get(type(val))
-            return {key: arg_converter(val)}
+        arg_converter = TYPE_CONVERTERS.get(type(val))
+        return {key: arg_converter(val)}
     except Exception as ex:
         raise CloudantArgumentError(136, key, ex)
 
@@ -238,11 +237,11 @@ def get_docs(r_session, url, encoder=None, headers=None, **params):
     """
     keys_list = params.pop('keys', None)
     keys = None
-    if keys_list:
+    if keys_list is not None:
         keys = json.dumps({'keys': keys_list}, cls=encoder)
     f_params = python_to_couch(params)
     resp = None
-    if keys:
+    if keys is not None:
         # If we're using POST we are sending JSON so add the header
         if headers is None:
             headers = {}
@@ -292,19 +291,21 @@ class InfiniteSession(Session):
     information in the event of expired session authentication.
     """
 
-    def __init__(self, username, password, server_url):
+    def __init__(self, username, password, server_url, **kwargs):
         super(InfiniteSession, self).__init__()
         self._username = username
         self._password = password
         self._server_url = server_url
+        self._timeout = kwargs.get('timeout', None)
 
-    def request(self, method, url, **kwargs):
+    def request(self, method, url, **kwargs):  # pylint: disable=W0221
         """
         Overrides ``requests.Session.request`` to perform a POST to the
         _session endpoint to renew Session cookie authentication settings and
         then retry the original request, if necessary.
         """
-        resp = super(InfiniteSession, self).request(method, url, **kwargs)
+        resp = super(InfiniteSession, self).request(
+            method, url, timeout=self._timeout, **kwargs)
         path = url_parse(url).path.lower()
         post_to_session = method.upper() == 'POST' and path == '/_session'
         is_expired = any((
@@ -319,10 +320,30 @@ class InfiniteSession(Session):
                 data={'name': self._username, 'password': self._password},
                 headers={'Content-Type': 'application/x-www-form-urlencoded'}
             )
-            resp = super(InfiniteSession, self).request(method, url, **kwargs)
+            resp = super(InfiniteSession, self).request(
+                method, url, timeout=self._timeout, **kwargs)
 
         return resp
 
+class ClientSession(Session):
+    """
+    This class extends Session and provides a default timeout.
+    """
+
+    def __init__(self, username, password, server_url, **kwargs):
+        super(ClientSession, self).__init__()
+        self._username = username
+        self._password = password
+        self._server_url = server_url
+        self._timeout = kwargs.get('timeout', None)
+
+    def request(self, method, url, **kwargs):  # pylint: disable=W0221
+        """
+        Overrides ``requests.Session.request`` to set the timeout.
+        """
+        resp = super(ClientSession, self).request(
+            method, url, timeout=self._timeout, **kwargs)
+        return resp
 
 class CloudFoundryService(object):
     """ Manages Cloud Foundry service configuration. """

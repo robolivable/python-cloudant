@@ -202,6 +202,11 @@ class DatabaseTests(UnitTestDbBase):
             # No issue should arise if attempting to create existing database
             db_2 = db.create()
             self.assertEqual(db, db_2)
+            # If we use throw_on_exists=True, it will raise a
+            # CloudantDatabaseException if the database already exists.
+            with self.assertRaises(CloudantDatabaseException) as cm:
+                db.create(throw_on_exists=True)
+            self.assertEqual(cm.exception.status_code, 412)
         except Exception as err:
             self.fail('Exception {0} was raised.'.format(str(err)))
         finally:
@@ -261,6 +266,17 @@ class DatabaseTests(UnitTestDbBase):
                 str(err),
                 'Document with id julia06 already exists.'
                 )
+
+    def test_create_document_that_already_exists(self):
+        """
+        Test creating a document that already exists
+        """
+        data = {'_id': 'julia'}
+        doc = self.db.create_document(data)
+        self.assertEqual(self.db['julia'], doc)
+        self.assertTrue(doc['_rev'].startswith('1-'))
+        # attempt to recreate document
+        self.db.create_document(data, throw_on_exists=False)
 
     def test_create_document_without_id(self):
         """
@@ -415,6 +431,15 @@ class DatabaseTests(UnitTestDbBase):
         self.assertEqual(len(rows), 100)
         keys_returned = [row['key'] for row in rows]
         self.assertTrue(all(x in keys_returned for x in keys_list))
+
+    def test_all_docs_post_empty_key_list(self):
+        """
+        Test the all_docs POST request functionality using empty keys param
+        """
+        self.populate_db_with_documents()
+        # Request all_docs using an empty key list
+        rows = self.db.all_docs(keys=[]).get('rows')
+        self.assertEqual(len(rows), 0)
 
     def test_all_docs_post_multiple_params(self):
         """
@@ -690,7 +715,7 @@ class DatabaseTests(UnitTestDbBase):
         )
         # Test differences
         self.assertEqual(
-            self.db.revisions_diff('julia006', *revs), 
+            self.db.revisions_diff('julia006', *revs),
             {'julia006': {'missing': revs, 'possible_ancestors': [doc['_rev']]}}
         )
         # Test no differences
@@ -1150,7 +1175,7 @@ class CloudantDatabaseTests(UnitTestDbBase):
                  'lists': {},
                  'shows': {},
                  'language': 'query',
-                 'views': {index.name: {'map': {'fields': {'name': 'asc', 
+                 'views': {index.name: {'map': {'fields': {'name': 'asc',
                                                            'age': 'asc'}},
                                         'reduce': '_count',
                                         'options': {'def': {'fields': ['name',
@@ -1241,7 +1266,7 @@ class CloudantDatabaseTests(UnitTestDbBase):
                  'lists': {},
                  'shows': {},
                  'views': {'json-index-001': {
-                                'map': {'fields': {'name': 'asc', 
+                                'map': {'fields': {'name': 'asc',
                                                    'age': 'asc'}},
                                         'reduce': '_count',
                                         'options': {'def': {'fields': ['name',
@@ -1258,7 +1283,7 @@ class CloudantDatabaseTests(UnitTestDbBase):
                                    'default': 'keyword',
                                    'fields': {'$default': 'standard'}}}}}
             )
-    
+
     def test_create_query_index_failure(self):
         """
         Tests that a type of something other than 'json' or 'text' will cause

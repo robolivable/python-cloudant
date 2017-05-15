@@ -157,10 +157,15 @@ class CouchDatabase(dict):
             doc = DesignDocument(self, docid)
         else:
             doc = Document(self, docid)
-        if throw_on_exists and doc.exists():
-            raise CloudantDatabaseException(409, docid)
         doc.update(data)
-        doc.create()
+        try:
+            doc.create()
+        except HTTPError as error:
+            if error.response.status_code == 409:
+                if throw_on_exists:
+                    raise CloudantDatabaseException(409, docid)
+            else:
+                raise
         super(CouchDatabase, self).__setitem__(doc['_id'], doc)
         return doc
 
@@ -326,18 +331,22 @@ class CouchDatabase(dict):
             return view(**kwargs)
         elif kwargs:
             return Result(view, **kwargs)
-        else:
-            return view.result
 
-    def create(self):
+        return view.result
+
+    def create(self, throw_on_exists=False):
         """
         Creates a database defined by the current database object, if it
         does not already exist and raises a CloudantException if the operation
         fails.  If the database already exists then this method call is a no-op.
 
+        :param bool throw_on_exists: Boolean flag dictating whether or
+            not to throw a CloudantDatabaseException when attempting to
+            create a database that already exists.
+
         :returns: The database object
         """
-        if self.exists():
+        if not throw_on_exists and self.exists():
             return self
 
         resp = self.r_session.put(self.database_url)
@@ -759,7 +768,7 @@ class CouchDatabase(dict):
         """
         url = posixpath.join(self.database_url, '_revs_limit')
 
-        resp = self.r_session.put(url, data=json.dumps(limit, self.client.encoder))
+        resp = self.r_session.put(url, data=json.dumps(limit, cls=self.client.encoder))
         resp.raise_for_status()
 
         return resp.json()
@@ -1229,8 +1238,8 @@ class CloudantDatabase(CouchDatabase):
             return query(**kwargs)
         if kwargs:
             return QueryResult(query, **kwargs)
-        else:
-            return query.result
+
+        return query.result
 
     def get_search_result(self, ddoc_id, index_name, **query_params):
         """
