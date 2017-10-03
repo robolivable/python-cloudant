@@ -56,8 +56,8 @@ Connecting with a client
 
     # Perform client tasks...
     session = client.session()
-    print 'Username: {0}'.format(session['userCtx']['name'])
-    print 'Databases: {0}'.format(client.all_dbs())
+    print('Username: {0}'.format(session['userCtx']['name']))
+    print('Databases: {0}'.format(client.all_dbs()))
 
     # Disconnect from the server
     client.disconnect()
@@ -87,6 +87,30 @@ following statements hold true:
     client = Cloudant(USERNAME, PASSWORD, url='https://acct.cloudant.com',
                      connect=True,
                      auto_renew=True)
+
+
+************************************
+Identity and Access Management (IAM)
+************************************
+
+IBM Cloud Identity & Access Management enables you to securely authenticate
+users and control access to all cloud resources consistently in the IBM Bluemix
+Cloud Platform.
+
+See `IBM Cloud Identity and Access Management <https://console.bluemix.net/docs/services/Cloudant/guides/iam.html#ibm-cloud-identity-and-access-management>`_
+for more information.
+
+The production IAM token service at *https://iam.bluemix.net/oidc/token* is used
+by default. You can set an ``IAM_TOKEN_URL`` environment variable to override
+this.
+
+You can easily connect to your Cloudant account using an IAM API key:
+
+.. code-block:: python
+
+    # Authenticate using an IAM API key
+    client = Cloudant.iam(ACCOUNT_NAME, API_KEY, connect=True)
+
 
 ****************
 Resource sharing
@@ -176,7 +200,7 @@ Creating a database
 
     # You can check that the database exists
     if my_database.exists():
-        print 'SUCCESS!!'
+        print('SUCCESS!!')
 
 Opening a database
 ^^^^^^^^^^^^^^^^^^
@@ -228,7 +252,7 @@ Creating a document
 
     # Check that the document exists in the database
     if my_document.exists():
-        print 'SUCCESS!!'
+        print('SUCCESS!!')
 
 Retrieving a document
 ^^^^^^^^^^^^^^^^^^^^^
@@ -244,7 +268,7 @@ classes are sub-classes of ``dict``, this is accomplished through standard
     my_document = my_database['julia30']
 
     # Display the document
-    print my_document
+    print(my_document)
 
 Retrieve all documents
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -256,7 +280,7 @@ to retrieve all documents in a database.
 
     # Get all of the documents from my_database
     for document in my_database:
-        print document
+        print(document)
 
 Update a document
 ^^^^^^^^^^^^^^^^^
@@ -333,7 +357,7 @@ object already exists.
 
     # Iterate over the result collection
     for result in result_collection:
-        print result
+        print(result)
 
 ****************
 Context managers
@@ -342,57 +366,86 @@ Context managers
 Now that we've gone through the basics, let's take a look at how to simplify 
 the process of connection, database acquisition, and document management 
 through the use of Python *with* blocks and this library's context managers.  
-Handling your business using *with* blocks saves you from having to connect and 
+
+Handling your business using *with* blocks saves you from having to connect and
 disconnect your client as well as saves you from having to perform a lot of 
 fetch and save operations as the context managers handle these operations for 
-you.  This example uses the ``cloudant`` context helper to illustrate the 
+you.
+
+This example uses the ``cloudant`` context helper to illustrate the
 process but identical functionality exists for CouchDB through the ``couchdb`` 
 and ``couchdb_admin_party`` context helpers.
 
 .. code-block:: python
 
-    # cloudant context helper
     from cloudant import cloudant
 
-    # couchdb context helper
+    # ...or use CouchDB variant
     # from cloudant import couchdb
-
-    from cloudant.document import Document
 
     # Perform a connect upon entry and a disconnect upon exit of the block
     with cloudant(USERNAME, PASSWORD, account=ACCOUNT_NAME) as client:
 
-    # CouchDB variant
+    # ...or use CouchDB variant
     # with couchdb(USERNAME, PASSWORD, url=COUCHDB_URL) as client:
     
         # Perform client tasks...
         session = client.session()
-        print 'Username: {0}'.format(session['userCtx']['name'])
-        print 'Databases: {0}'.format(client.all_dbs())
+        print('Username: {0}'.format(session['userCtx']['name']))
+        print('Databases: {0}'.format(client.all_dbs()))
 
         # Create a database
         my_database = client.create_database('my_database')
         if my_database.exists():
-            print 'SUCCESS!!'
+            print('SUCCESS!!')
 
         # You can open an existing database
         del my_database
         my_database = client['my_database']
-    
+
+The following example uses the ``Document`` context manager. Here we make
+multiple updates to a single document. Note that we don't save to the server
+after each update. We only save once to the server upon exiting the ``Document``
+context manager.
+
+ .. code-block:: python
+
+    from cloudant import cloudant
+    from cloudant.document import Document
+
+    with cloudant(USERNAME, PASSWORD, account=ACCOUNT_NAME) as client:
+
+        my_database = client.create_database('my_database')
+
         # Performs a fetch upon entry and a save upon exit of this block
-        # Use this context manager to create or update a Document
         with Document(my_database, 'julia30') as doc:
             doc['name'] = 'Julia'
             doc['age'] = 30
             doc['pets'] = ['cat', 'dog', 'frog']
 
         # Display a Document
-        print my_database['julia30']
+        print(my_database['julia30'])
     
         # Delete the database
         client.delete_database('my_database')
 
-        print 'Databases: {0}'.format(client.all_dbs())
+        print('Databases: {0}'.format(client.all_dbs()))
+
+Always use the ``_deleted`` document property to delete a document from within
+a ``Document`` context manager. For example:
+
+ .. code-block:: python
+
+    with Document(my_database, 'julia30') as doc:
+        doc['_deleted'] = True
+
+*You can also delete non underscore prefixed document keys to reduce the size of the request.*
+
+.. warning:: Don't use the ``doc.delete()`` method inside your ``Document``
+             context manager. This method immediately deletes the document on
+             the server and clears the local document dictionary. A new, empty
+             document is still saved to the server upon exiting the context
+             manager.
 
 ****************
 Endpoint access
@@ -422,4 +475,4 @@ Cloudant/CouchDB server.  This example assumes that either a ``Cloudant`` or a
     response = client.r_session.get(end_point, params=params)
 
     # Display the response content
-    print response.json()
+    print(response.json())

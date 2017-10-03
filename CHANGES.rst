@@ -1,10 +1,23 @@
-2.5.0 (Unreleased)
+Unreleased
+==========
+- [NEW] Added ``Result.all()`` convenience method.
+- [IMPROVED] Updated ``posixpath.join`` references to use ``'/'.join`` when concatenating URL parts.
+
+2.6.0 (2017-08-10)
 ==================
+- [NEW] Added ``Cloudant.bluemix()`` class method to the Cloudant client allowing service credentials to be passed using the CloudFoundry VCAP_SERVICES environment variable.
+- [FIXED] Fixed client construction in ``cloudant_bluemix`` context manager.
+- [FIXED] Fixed validation for feed options to accept zero as a valid value.
+
+2.5.0 (2017-07-06)
+==================
+- [FIXED] Fixed crash caused by non-UTF8 chars in design documents.
 - [FIXED] Fixed ``TypeError`` when setting revision limits on Python>=3.6.
 - [FIXED] Fixed the ``exists()`` double check on ``client.py`` and ``database.py``.
 - [FIXED] Fixed Cloudant exception code 409 with 412 when creating a database that already exists.
-- [FIXED] Catch error if ``throw_on_exists`` flag is ``False`` for document create.
+- [FIXED] Catch error if ``throw_on_exists`` flag is ``False`` for creating a document.
 - [FIXED] Fixed /_all_docs call where ``keys`` is an empty list.
+- [FIXED] Issue where docs with IDs that sorted lower than 0 were not returned when iterating through _all_docs.
 
 2.4.0 (2017-02-14)
 ==================

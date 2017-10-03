@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2015 IBM. All rights reserved.
+# Copyright (c) 2015, 2017 IBM. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 """
 Cloudant / CouchDB Python client library API package
 """
-__version__ = '2.5.0.dev'
+__version__ = '2.6.1.dev'
 
 # pylint: disable=wrong-import-position
 import contextlib
@@ -58,6 +58,35 @@ def cloudant(user, passwd, **kwargs):
             # ...
     """
     cloudant_session = Cloudant(user, passwd, **kwargs)
+    cloudant_session.connect()
+    yield cloudant_session
+    cloudant_session.disconnect()
+
+@contextlib.contextmanager
+def cloudant_iam(account_name, api_key, **kwargs):
+    """
+    Provides a context manager to create a Cloudant session using IAM
+    authentication and provide access to databases, docs etc.
+
+    :param account_name: Cloudant account name.
+    :param api_key: IAM authentication API key.
+
+    For example:
+
+    .. code-block:: python
+
+        # cloudant context manager
+        from cloudant import cloudant_iam
+
+        with cloudant_iam(ACCOUNT_NAME, API_KEY) as client:
+            # Context handles connect() and disconnect() for you.
+            # Perform library operations within this context.  Such as:
+            print client.all_dbs()
+            # ...
+
+    """
+    cloudant_session = Cloudant.iam(account_name, api_key, **kwargs)
+
     cloudant_session.connect()
     yield cloudant_session
     cloudant_session.disconnect()
@@ -122,8 +151,8 @@ def cloudant_bluemix(vcap_services, instance_name=None, **kwargs):
     """
     service = CloudFoundryService(vcap_services, instance_name)
     cloudant_session = Cloudant(
-        username=service.username,
-        password=service.password,
+        service.username,
+        service.password,
         url=service.url,
         **kwargs
     )

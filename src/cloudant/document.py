@@ -16,7 +16,6 @@
 API module/class for interacting with a document in a database.
 """
 import json
-import posixpath
 import requests
 import time
 from requests.exceptions import HTTPError
@@ -92,19 +91,19 @@ class Document(dict):
 
         # handle design document url
         if self._document_id.startswith('_design/'):
-            return posixpath.join(
+            return '/'.join((
                 self._database_host,
                 url_quote_plus(self._database_name),
                 '_design',
                 url_quote(self._document_id[8:], safe='')
-            )
+            ))
 
         # handle document url
-        return posixpath.join(
+        return '/'.join((
             self._database_host,
             url_quote_plus(self._database_name),
             url_quote(self._document_id, safe='')
-        )
+        ))
 
     def exists(self):
         """
@@ -399,7 +398,7 @@ class Document(dict):
         """
         # need latest rev
         self.fetch()
-        attachment_url = posixpath.join(self.document_url, attachment)
+        attachment_url = '/'.join((self.document_url, attachment))
         if headers is None:
             headers = {'If-Match': self['_rev']}
         else:
@@ -442,7 +441,7 @@ class Document(dict):
         """
         # need latest rev
         self.fetch()
-        attachment_url = posixpath.join(self.document_url, attachment)
+        attachment_url = '/'.join((self.document_url, attachment))
         if headers is None:
             headers = {'If-Match': self['_rev']}
         else:
@@ -483,7 +482,7 @@ class Document(dict):
         """
         # need latest rev
         self.fetch()
-        attachment_url = posixpath.join(self.document_url, attachment)
+        attachment_url = '/'.join((self.document_url, attachment))
         if headers is None:
             headers = {
                 'If-Match': self['_rev'],
